@@ -1,13 +1,7 @@
 <?php
-// =============================================================================
-//  SynAgro System — Dashboard Principal
-//  Arquivo : pages/dashboard.php
-// =============================================================================
-
 require_once '../config/conexao.php';
 require_once '../includes/auth.php';
 
-// Exige login — redireciona para login.php se não autenticado
 exigirLogin('../');
 
 $usuario = usuarioAtual();
@@ -18,9 +12,6 @@ if (isset($_GET['erro']) && $_GET['erro'] === 'acesso_negado') {
     $aviso = 'Você não tem permissão para acessar essa área.';
 }
 
-// -----------------------------------------------------------------------------
-// Carrega dados do dashboard conforme o perfil
-// -----------------------------------------------------------------------------
 $dados = [
     'total_propriedades'  => 0,
     'total_culturas'      => 0,
@@ -36,7 +27,6 @@ $dados = [
 
 try {
 
-    // Propriedades do usuário (ou todas para admin)
     if ($usuario['perfil'] === 'admin') {
         $dados['total_propriedades'] = $pdo
             ->query("SELECT COUNT(*) FROM propriedades WHERE deleted_at IS NULL")
@@ -61,32 +51,26 @@ try {
         $dados['propriedades_lista'] = $stmt2->fetchAll();
     }
 
-    // Culturas ativas
     $dados['total_culturas'] = $pdo
         ->query("SELECT COUNT(*) FROM culturas WHERE status = 'em_andamento' AND deleted_at IS NULL")
         ->fetchColumn();
 
-    // Equipamentos operacionais
     $dados['total_equipamentos'] = $pdo
         ->query("SELECT COUNT(*) FROM equipamentos WHERE status = 'operacional' AND deleted_at IS NULL")
         ->fetchColumn();
 
-    // Animais ativos
     $dados['total_animais'] = $pdo
         ->query("SELECT COUNT(*) FROM animais WHERE status = 'ativo' AND deleted_at IS NULL")
         ->fetchColumn();
 
-    // Itens em estoque crítico (view)
     $dados['estoque_critico'] = $pdo
         ->query("SELECT COUNT(*) FROM vw_estoque_critico")
         ->fetchColumn();
 
-    // Manutenções abertas (view)
     $dados['manutencoes_abertas'] = $pdo
         ->query("SELECT COUNT(*) FROM vw_equipamentos_em_manutencao")
         ->fetchColumn();
 
-    // Financeiro do mês corrente
     $mes = date('m');
     $ano = date('Y');
     $fin = $pdo->prepare("
@@ -103,7 +87,6 @@ try {
     $dados['receitas_mes']  = $fin_row['receitas']  ?? 0;
     $dados['despesas_mes']  = $fin_row['despesas']  ?? 0;
 
-    // Logs recentes (só admin)
     if ($usuario['perfil'] === 'admin') {
         $dados['logs_recentes'] = $pdo
             ->query("
@@ -121,12 +104,10 @@ try {
     error_log("[SynAgro Dashboard] " . $e->getMessage());
 }
 
-// Formata valor monetário
 function moeda(float $v): string {
     return 'R$ ' . number_format($v, 2, ',', '.');
 }
 
-// Ícone de módulo
 function iconeModulo(string $m): string {
     $icons = [
         'dashboard'   => '📊', 'usuarios'     => '👥',
@@ -155,7 +136,6 @@ function iconeModulo(string $m): string {
       min-height: 100vh;
     }
 
-    /* ── Topbar ──────────────────────────────────────────── */
     .topbar {
       background: #1A3C2A;
       display: flex;
@@ -234,7 +214,6 @@ function iconeModulo(string $m): string {
 
     .btn-logout:hover { background: rgba(255,255,255,.22); color: #fff; }
 
-    /* ── Sidebar ─────────────────────────────────────────── */
     .layout {
       display: flex;
       min-height: calc(100vh - 60px);
@@ -284,7 +263,6 @@ function iconeModulo(string $m): string {
 
     .sidebar a .icon { font-size: 16px; }
 
-    /* ── Conteúdo principal ──────────────────────────────── */
     .main {
       flex: 1;
       padding: 28px 32px;
@@ -307,7 +285,6 @@ function iconeModulo(string $m): string {
       margin-top: 4px;
     }
 
-    /* ── Alert ───────────────────────────────────────────── */
     .alert {
       padding: 12px 16px;
       border-radius: 8px;
@@ -322,7 +299,6 @@ function iconeModulo(string $m): string {
       border-color: #C8973A;
     }
 
-    /* ── Cards de indicadores ────────────────────────────── */
     .cards-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -359,7 +335,6 @@ function iconeModulo(string $m): string {
     .card.positivo { border-color: #7CB87A; background: #F7FBF7; }
     .card.positivo .card-num { color: #2C5F2D; }
 
-    /* ── Seção de tabela ─────────────────────────────────── */
     .secao {
       background: #fff;
       border-radius: 12px;
@@ -425,7 +400,6 @@ function iconeModulo(string $m): string {
     .tag-azul   { background: #E6F1FB; color: #0C447C; }
     .tag-cinza  { background: #F4F1E8; color: #5A5A5A; }
 
-    /* ── Grid 2 colunas ──────────────────────────────────── */
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -440,7 +414,6 @@ function iconeModulo(string $m): string {
 </head>
 <body>
 
-<!-- ── Topbar ──────────────────────────────────────────────────────────── -->
 <header class="topbar">
   <div class="topbar-brand">
     <span>🌿</span>
@@ -464,7 +437,6 @@ function iconeModulo(string $m): string {
 
 <div class="layout">
 
-  <!-- ── Sidebar ───────────────────────────────────────────────────────── -->
   <nav class="sidebar">
     <div class="sidebar-section">Menu Principal</div>
 
@@ -491,7 +463,6 @@ function iconeModulo(string $m): string {
 
   </nav>
 
-  <!-- ── Conteúdo ──────────────────────────────────────────────────────── -->
   <main class="main">
 
     <?php if ($aviso): ?>
@@ -506,7 +477,6 @@ function iconeModulo(string $m): string {
       </p>
     </div>
 
-    <!-- ── Cards de indicadores ──────────────────────────────────────── -->
     <div class="cards-grid">
 
       <div class="card">
@@ -563,12 +533,10 @@ function iconeModulo(string $m): string {
       </div>
       <?php endif; ?>
 
-    </div><!-- /cards-grid -->
+    </div>
 
-    <!-- ── Tabelas por perfil ─────────────────────────────────────────── -->
     <div class="grid-2">
 
-      <!-- Propriedades -->
       <?php if (!empty($dados['propriedades_lista'])): ?>
       <div class="secao">
         <div class="secao-header">
@@ -605,7 +573,6 @@ function iconeModulo(string $m): string {
       </div>
       <?php endif; ?>
 
-      <!-- Logs recentes (só admin) -->
       <?php if ($usuario['perfil'] === 'admin' && !empty($dados['logs_recentes'])): ?>
       <div class="secao">
         <div class="secao-header">
@@ -641,9 +608,8 @@ function iconeModulo(string $m): string {
       </div>
       <?php endif; ?>
 
-    </div><!-- /grid-2 -->
+    </div>
 
-    <!-- Aviso de acesso restrito para perfis sem módulos avançados -->
     <?php if ($usuario['perfil'] === 'visualizador'): ?>
     <div class="secao">
       <div style="padding:32px;text-align:center;color:#5A5A5A">
@@ -657,8 +623,8 @@ function iconeModulo(string $m): string {
     </div>
     <?php endif; ?>
 
-  </main><!-- /main -->
-</div><!-- /layout -->
+  </main>
+</div>
 
 </body>
 </html>
