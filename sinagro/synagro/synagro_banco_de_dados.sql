@@ -7,13 +7,6 @@ CREATE DATABASE synagro_db
     COLLATE utf8mb4_unicode_ci;
  
 USE synagro_db;
- 
--- =============================================================================
--- TABELA 1 — usuarios
--- Armazena todos os usuários do sistema com credenciais seguras.
--- Segurança: senha armazenada apenas como hash bcrypt (nunca texto plano),
---            token de refresh para JWT, controle de tentativas de login e
---            soft-delete (deleted_at) para não perder histórico.
 -- =============================================================================
 CREATE TABLE usuarios (
     id               INT UNSIGNED     NOT NULL AUTO_INCREMENT,
@@ -46,11 +39,6 @@ CREATE TABLE usuarios (
 CREATE INDEX idx_usuarios_email   ON usuarios (email);
 CREATE INDEX idx_usuarios_perfil  ON usuarios (perfil);
 CREATE INDEX idx_usuarios_ativo   ON usuarios (ativo);
- 
--- =============================================================================
--- TABELA 2 — propriedades
--- Representa a fazenda / propriedade rural de um usuário.
--- 1 usuário pode ter N propriedades (cardinalidade 1:N).
 -- =============================================================================
 CREATE TABLE propriedades (
     id              INT UNSIGNED   NOT NULL AUTO_INCREMENT,
@@ -80,10 +68,6 @@ CREATE TABLE propriedades (
 CREATE INDEX idx_prop_usuario ON propriedades (usuario_id);
 CREATE INDEX idx_prop_estado  ON propriedades (estado);
  
--- =============================================================================
--- TABELA 3 — areas_propriedades
--- Subdivisões de uma propriedade (talhões, piquetes, glebas).
--- Respeita 2FN/3FN: atributos dependem apenas do id da área, não da propriedade.
 -- =============================================================================
 CREATE TABLE areas_propriedades (
     id              INT UNSIGNED   NOT NULL AUTO_INCREMENT,
@@ -116,11 +100,6 @@ CREATE TABLE areas_propriedades (
 CREATE INDEX idx_areas_prop ON areas_propriedades (propriedade_id);
 CREATE INDEX idx_areas_tipo ON areas_propriedades (tipo);
  
--- =============================================================================
--- TABELA 4 — especies
--- Catálogo normalizado de espécies vegetais/animais.
--- Separada de culturas para evitar repetição (3FN): dados da espécie não
--- dependem de nenhum ciclo ou cultura específica.
 -- =============================================================================
 CREATE TABLE especies (
     id              INT UNSIGNED   NOT NULL AUTO_INCREMENT,
@@ -157,11 +136,6 @@ CREATE TABLE especies (
  
 CREATE INDEX idx_especies_categoria ON especies (categoria);
  
--- =============================================================================
--- TABELA 5 — culturas
--- Registro de uma cultura plantada em determinada área.
--- 3FN: dados da espécie ficam em `especies`; dados da área, em
--- `areas_propriedades`. Aqui ficam apenas os atributos do plantio.
 -- =============================================================================
 CREATE TABLE culturas (
     id              INT UNSIGNED   NOT NULL AUTO_INCREMENT,
@@ -205,10 +179,6 @@ CREATE INDEX idx_cult_especie ON culturas (especie_id);
 CREATE INDEX idx_cult_status  ON culturas (status);
  
 -- =============================================================================
--- TABELA 6 — ciclos_plantio
--- Detalha as etapas/fases de cada cultura (germinação, crescimento, floração…).
--- 2FN/3FN: cada etapa depende exclusivamente do id do ciclo.
--- =============================================================================
 CREATE TABLE ciclos_plantio (
     id              INT UNSIGNED   NOT NULL AUTO_INCREMENT,
     cultura_id      INT UNSIGNED   NOT NULL,
@@ -235,10 +205,6 @@ CREATE TABLE ciclos_plantio (
 CREATE INDEX idx_ciclos_cultura   ON ciclos_plantio (cultura_id);
 CREATE INDEX idx_ciclos_concluida ON ciclos_plantio (concluida);
  
--- =============================================================================
--- TABELA 7 — animais
--- Registro do rebanho/plantel da propriedade.
--- 3FN: raça/espécie em `especies`; propriedade em `propriedades`.
 -- =============================================================================
 CREATE TABLE animais (
     id              INT UNSIGNED   NOT NULL AUTO_INCREMENT,
@@ -275,10 +241,6 @@ CREATE INDEX idx_anim_status  ON animais (status);
 CREATE INDEX idx_anim_especie ON animais (especie_id);
  
 -- =============================================================================
--- TABELA 8 — categorias_financeiras
--- Categorias de receitas e despesas (3FN: não mistura dados de movimentação).
--- Suporta hierarquia de categorias via parent_id (auto-referência).
--- =============================================================================
 CREATE TABLE categorias_financeiras (
     id          INT UNSIGNED   NOT NULL AUTO_INCREMENT,
     parent_id   INT UNSIGNED       NULL COMMENT 'NULL = categoria raiz',
@@ -299,11 +261,6 @@ CREATE TABLE categorias_financeiras (
  
 CREATE INDEX idx_cat_tipo ON categorias_financeiras (tipo);
  
--- =============================================================================
--- TABELA 9 — movimentacoes_financeiras
--- Toda entrada ou saída financeira da propriedade.
--- 3FN: categoria fica em `categorias_financeiras`; propriedade em
--- `propriedades`; usuário que lançou em `usuarios`.
 -- =============================================================================
 CREATE TABLE movimentacoes_financeiras (
     id              INT UNSIGNED     NOT NULL AUTO_INCREMENT,
@@ -339,10 +296,6 @@ CREATE INDEX idx_movfin_data  ON movimentacoes_financeiras (data_movimentacao);
 CREATE INDEX idx_movfin_tipo  ON movimentacoes_financeiras (tipo);
 CREATE INDEX idx_movfin_pago  ON movimentacoes_financeiras (pago);
  
--- =============================================================================
--- TABELA 10 — estoque
--- Produtos/insumos disponíveis na propriedade (sementes, combustível, ração…).
--- 3FN: unidade de medida é atributo do item, não da movimentação.
 -- =============================================================================
 CREATE TABLE estoque (
     id              INT UNSIGNED   NOT NULL AUTO_INCREMENT,
@@ -380,11 +333,6 @@ CREATE INDEX idx_est_prop      ON estoque (propriedade_id);
 CREATE INDEX idx_est_categoria ON estoque (categoria);
  
 -- =============================================================================
--- TABELA 11 — movimentacoes_estoque
--- Entradas e saídas de cada item do estoque.
--- 2FN/3FN: saldo atual fica em `estoque.quantidade_atual` (calculado via
--- trigger ou aplicação); aqui ficam apenas os registros imutáveis de cada mov.
--- =============================================================================
 CREATE TABLE movimentacoes_estoque (
     id              INT UNSIGNED   NOT NULL AUTO_INCREMENT,
     estoque_id      INT UNSIGNED   NOT NULL,
@@ -411,10 +359,6 @@ CREATE INDEX idx_movest_est  ON movimentacoes_estoque (estoque_id);
 CREATE INDEX idx_movest_data ON movimentacoes_estoque (data_movimentacao);
 CREATE INDEX idx_movest_tipo ON movimentacoes_estoque (tipo);
  
--- =============================================================================
--- TABELA 12 — equipamentos
--- Máquinas, implementos e veículos da propriedade.
--- 3FN: fabricante/modelo são atributos do equipamento, não da manutenção.
 -- =============================================================================
 CREATE TABLE equipamentos (
     id              INT UNSIGNED   NOT NULL AUTO_INCREMENT,
@@ -472,10 +416,6 @@ CREATE INDEX idx_equip_tipo   ON equipamentos (tipo);
 CREATE INDEX idx_equip_status ON equipamentos (status);
  
 -- =============================================================================
--- TABELA 13 — manutencoes
--- Histórico de manutenções preventivas e corretivas dos equipamentos.
--- 3FN: dados do equipamento em `equipamentos`; responsável em `usuarios`.
--- =============================================================================
 CREATE TABLE manutencoes (
     id                  INT UNSIGNED   NOT NULL AUTO_INCREMENT,
     equipamento_id      INT UNSIGNED   NOT NULL,
@@ -527,11 +467,6 @@ CREATE INDEX idx_manut_status ON manutencoes (status);
 CREATE INDEX idx_manut_data   ON manutencoes (data_abertura);
  
 -- =============================================================================
--- TABELA 14 — logs_sistema
--- Auditoria completa de todas as ações realizadas no sistema.
--- Nunca tem UPDATE/DELETE — é append-only por design de segurança.
--- Registra: quem fez, o quê fez, em qual tabela/registro, quando e de onde.
--- =============================================================================
 CREATE TABLE logs_sistema (
     id              BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
     usuario_id      INT UNSIGNED         NULL COMMENT 'NULL = ação do sistema/anônimo',
@@ -572,12 +507,8 @@ CREATE INDEX idx_logs_tabela  ON logs_sistema (tabela_afetada);
 CREATE INDEX idx_logs_data    ON logs_sistema (criado_em);
  
 -- =============================================================================
--- REATIVAR INTEGRIDADE REFERENCIAL
--- =============================================================================
 SET FOREIGN_KEY_CHECKS = 1;
- 
--- =============================================================================
--- TRIGGER — Atualiza estoque automaticamente ao inserir movimentação
+
 -- =============================================================================
 DELIMITER $$
  
@@ -594,15 +525,12 @@ BEGIN
         SET quantidade_atual = quantidade_atual - NEW.quantidade
         WHERE id = NEW.estoque_id;
     ELSEIF NEW.tipo = 'ajuste' THEN
-        -- Ajuste: quantidade vira o novo saldo absoluto
         UPDATE estoque
         SET quantidade_atual = NEW.quantidade
         WHERE id = NEW.estoque_id;
     END IF;
 END$$
  
--- =============================================================================
--- TRIGGER — Bloqueia conta após 5 tentativas de login falhas
 -- =============================================================================
 DELIMITER $$
 
@@ -617,8 +545,6 @@ END$$
 
 DELIMITER ;
  
--- =============================================================================
--- TRIGGER — Gera log automático ao excluir (soft-delete) um usuário
 -- =============================================================================
 DELIMITER $$
 
@@ -642,8 +568,6 @@ END$$
 DELIMITER ;
 
 -- =============================================================================
--- VIEW — Resumo financeiro por propriedade (receitas x despesas)
--- =============================================================================
 CREATE OR REPLACE VIEW vw_resumo_financeiro AS
 SELECT
     p.id                                    AS propriedade_id,
@@ -662,8 +586,6 @@ WHERE mf.deleted_at IS NULL
 GROUP BY p.id, p.nome, u.nome, YEAR(mf.data_movimentacao), MONTH(mf.data_movimentacao);
  
 -- =============================================================================
--- VIEW — Itens de estoque abaixo do mínimo (alerta)
--- =============================================================================
 CREATE OR REPLACE VIEW vw_estoque_critico AS
 SELECT
     e.id,
@@ -680,9 +602,7 @@ WHERE e.ativo = 1
   AND e.deleted_at IS NULL
   AND e.quantidade_minima IS NOT NULL
   AND e.quantidade_atual < e.quantidade_minima;
- 
--- =============================================================================
--- VIEW — Equipamentos com manutenção em aberto
+
 -- =============================================================================
 CREATE OR REPLACE VIEW vw_equipamentos_em_manutencao AS
 SELECT
@@ -702,8 +622,6 @@ JOIN usuarios      u ON u.id  = m.usuario_id
 WHERE m.status IN ('aberta', 'em_andamento');
  
 -- =============================================================================
--- DADOS INICIAIS — Categorias financeiras padrão
--- =============================================================================
 INSERT INTO categorias_financeiras (parent_id, nome, tipo, icone, cor_hex) VALUES
 -- RECEITAS
 (NULL, 'Receitas',                  'receita',  'trending-up',     '#4CAF50'),
@@ -720,8 +638,6 @@ INSERT INTO categorias_financeiras (parent_id, nome, tipo, icone, cor_hex) VALUE
 (6,    'Energia Elétrica',          'despesa',  'zap',             '#FFEBEE'),
 (6,    'Ração e Medicamentos',      'despesa',  'heart',           '#FFEBEE');
  
--- =============================================================================
--- DADOS INICIAIS — Espécies mais comuns no Brasil
 -- =============================================================================
 INSERT INTO especies (nome_comum, nome_cientifico, categoria, ciclo_dias_min, ciclo_dias_max) VALUES
 ('Soja',         'Glycine max',             'grao',       90,  150),
