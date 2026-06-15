@@ -1,13 +1,7 @@
 <?php
-// =============================================================================
-//  SynAgro System — Cadastro de Usuário
-//  Arquivo : register.php
-// =============================================================================
- 
 require_once 'config/conexao.php';
 require_once 'includes/auth.php';
  
-// Se já está logado, vai pro dashboard
 if (usuarioLogado()) {
     header('Location: pages/dashboard.php');
     exit;
@@ -16,7 +10,6 @@ if (usuarioLogado()) {
 $erro    = '';
 $sucesso = '';
  
-// Preserva os campos preenchidos em caso de erro
 $campos = [
     'nome'     => '',
     'email'    => '',
@@ -24,9 +17,6 @@ $campos = [
     'perfil'   => 'operador',
 ];
  
-// -----------------------------------------------------------------------------
-// Processa o formulário (POST)
-// -----------------------------------------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
     $campos['nome']     = limpar($_POST['nome']     ?? '');
@@ -36,7 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $senha              = $_POST['senha']            ?? '';
     $confirmar          = $_POST['confirmar_senha']  ?? '';
  
-    // ── Validações ────────────────────────────────────────────────────────
     if (empty($campos['nome']) || empty($campos['email']) || empty($senha)) {
         $erro = 'Preencha todos os campos obrigatórios.';
  
@@ -63,8 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
     } else {
         $pdo = conectar();
- 
-        // Verifica se o e-mail já está cadastrado
         $chk = $pdo->prepare("SELECT id FROM usuarios WHERE email = :email LIMIT 1");
         $chk->execute([':email' => $campos['email']]);
  
@@ -72,10 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $erro = 'Este e-mail já está cadastrado. Tente fazer login ou use outro e-mail.';
  
         } else {
-            // Gera hash seguro da senha (bcrypt, cost 12)
             $hash = password_hash($senha, PASSWORD_BCRYPT, ['cost' => 12]);
  
-            // Insere o novo usuário
             $ins = $pdo->prepare("
                 INSERT INTO usuarios
                     (nome, email, senha_hash, perfil, telefone, ativo, email_verificado)
@@ -92,7 +77,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
             $novoId = $pdo->lastInsertId();
  
-            // Registra criação nos logs
             $log = $pdo->prepare("
                 INSERT INTO logs_sistema
                     (usuario_id, acao, tabela_afetada, registro_id, descricao, ip_address)
@@ -108,7 +92,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
             $sucesso = 'Cadastro realizado com sucesso! Você já pode fazer login.';
  
-            // Limpa os campos após sucesso
             $campos = ['nome' => '', 'email' => '', 'telefone' => '', 'perfil' => 'operador'];
         }
     }
@@ -142,7 +125,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       box-shadow: 0 8px 40px rgba(26,60,42,.18);
     }
  
-    /* ── Painel esquerdo ─────────────────────────────────── */
     .left {
       background: #1A3C2A;
       flex: 0 0 300px;
@@ -170,7 +152,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
  
-    /* ── Painel direito (formulário) ─────────────────────── */
     .right {
       background: #fff;
       flex: 1;
@@ -183,7 +164,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .right h2    { font-size: 22px; color: #1A3C2A; font-weight: 700; margin-bottom: 4px; }
     .right .sub  { color: #5A5A5A; font-size: 13px; margin-bottom: 28px; }
  
-    /* Grid 2 colunas */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; }
  
     .form-group { margin-bottom: 18px; }
@@ -210,7 +190,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     input:focus, select:focus { border-color: #2C5F2D; background: #fff; }
     input.invalido            { border-color: #A32D2D; background: #FFFBFB; }
  
-    /* Força de senha */
     .senha-forca-bar {
       height: 4px; border-radius: 2px; margin-top: 6px;
       background: #E8E0CC; overflow: hidden;
@@ -221,7 +200,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     .senha-hint { font-size: 11px; color: #5A5A5A; margin-top: 4px; }
  
-    /* Perfil cards */
     .perfil-grid {
       display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
       margin-top: 2px;
@@ -239,10 +217,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .perfil-card .p-name  { font-size: 11px; font-weight: 700; color: #1A3C2A; }
     .perfil-card .p-desc  { font-size: 10px; color: #5A5A5A; margin-top: 2px; line-height: 1.3; }
  
-    /* Input hidden para perfil */
     #perfil-hidden { display: none; }
  
-    /* Alerts */
     .alert {
       padding: 12px 16px; border-radius: 8px; font-size: 13px;
       margin-bottom: 20px; border-left: 4px solid;
@@ -250,7 +226,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .alert-erro    { background: #FCEBEB; color: #A32D2D; border-color: #A32D2D; }
     .alert-sucesso { background: #EAF3DE; color: #1A3C2A; border-color: #2C5F2D; }
  
-    /* Botão */
     .btn {
       width: 100%; padding: 13px; border: none; border-radius: 8px;
       font-size: 15px; font-weight: 700; cursor: pointer; letter-spacing: .5px;
@@ -259,7 +234,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .btn-verde   { background: #1A3C2A; color: #fff; }
     .btn-verde:hover { background: #2C5F2D; }
  
-    /* Link login */
     .link-login {
       text-align: center; margin-top: 18px; font-size: 13px; color: #5A5A5A;
     }
@@ -278,7 +252,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
 <div class="wrapper">
  
-  <!-- ── Painel esquerdo ───────────────────────────────────────────── -->
   <div class="left">
     <div class="icon">🌿</div>
     <h1>SYNAGRO</h1>
@@ -292,7 +265,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </ul>
   </div>
  
-  <!-- ── Formulário ────────────────────────────────────────────────── -->
   <div class="right">
     <h2>Criar nova conta</h2>
     <p class="sub">Preencha os dados abaixo para acessar o SynAgro System</p>
@@ -310,7 +282,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
     <form method="POST" action="register.php" id="formCadastro" novalidate>
  
-      <!-- Dados pessoais -->
       <div class="grid-2">
         <div class="form-group">
           <label for="nome">Nome completo <span class="obr">*</span></label>
@@ -343,7 +314,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         >
       </div>
  
-      <!-- Perfil de acesso -->
       <div class="form-group">
         <label>Perfil de acesso <span class="obr">*</span></label>
         <input type="hidden" id="perfil-hidden" name="perfil" value="<?= limpar($campos['perfil']) ?>">
@@ -387,7 +357,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
       </div>
  
-      <!-- Senhas -->
       <div class="grid-2">
         <div class="form-group">
           <label for="senha">Senha <span class="obr">*</span></label>
@@ -428,7 +397,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <script src="script.js"><script>
 </body>
 </html>
- 
-
-
-
