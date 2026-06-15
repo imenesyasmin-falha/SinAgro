@@ -1,13 +1,6 @@
 <?php
-// =============================================================================
-//  SynAgro System — Logout
-//  Arquivo : logout.php
-// =============================================================================
-
 require_once 'config/conexao.php';
 require_once 'includes/auth.php';
-
-// Registra logout nos logs antes de encerrar sessão
 if (usuarioLogado()) {
     try {
         $pdo  = conectar();
