@@ -1,13 +1,7 @@
 <?php
-// =============================================================================
-//  SynAgro System — Tela de Login
-//  Arquivo : login.php
-// =============================================================================
- 
 require_once 'config/conexao.php';
 require_once 'includes/auth.php';
  
-// Se já está logado, redireciona direto pro dashboard
 if (usuarioLogado()) {
     header('Location: pages/dashboard.php');
     exit;
@@ -17,9 +11,6 @@ $erro    = '';
 $sucesso = '';
 $email   = '';
  
-// -----------------------------------------------------------------------------
-// Mensagens de contexto (vindo de logout, sessão expirada etc.)
-// -----------------------------------------------------------------------------
 if (isset($_GET['sessao']) && $_GET['sessao'] === 'expirada') {
     $erro = 'Sua sessão expirou. Faça login novamente.';
 }
@@ -27,15 +18,11 @@ if (isset($_GET['logout']) && $_GET['logout'] === '1') {
     $sucesso = 'Você saiu com segurança. Até logo!';
 }
  
-// -----------------------------------------------------------------------------
-// Processa o formulário de login (POST)
-// -----------------------------------------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
     $email  = limpar($_POST['email']  ?? '');
-    $senha  = $_POST['senha'] ?? '';          // NÃO sanitizar senha — bcrypt cuida disso
+    $senha  = $_POST['senha'] ?? '';       
  
-    // Validações básicas antes de tocar no banco
     if (empty($email) || empty($senha)) {
         $erro = 'Preencha o e-mail e a senha para continuar.';
  
@@ -45,7 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $pdo = conectar();
  
-        // Busca usuário ativo pelo e-mail
         $stmt = $pdo->prepare("
             SELECT id, nome, email, senha_hash, perfil,
                    tentativas_login, bloqueado_ate, ativo
@@ -56,19 +42,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([':email' => $email]);
         $usuario = $stmt->fetch();
  
-        // ── Conta não encontrada ou inativa ──────────────────────────────
         if (!$usuario || !$usuario['ativo']) {
             $erro = 'E-mail ou senha incorretos.';
  
-        // ── Conta bloqueada temporariamente ──────────────────────────────
         } elseif ($usuario['bloqueado_ate'] && strtotime($usuario['bloqueado_ate']) > time()) {
             $minutos = ceil((strtotime($usuario['bloqueado_ate']) - time()) / 60);
             $erro = "Conta bloqueada por excesso de tentativas. Tente novamente em {$minutos} minuto(s).";
- 
-        // ── Verifica a senha (bcrypt) ─────────────────────────────────────
+
         } elseif (!password_verify($senha, $usuario['senha_hash'])) {
  
-            // Incrementa tentativas
             $novasTentativas = $usuario['tentativas_login'] + 1;
             $bloquear        = null;
  
@@ -88,7 +70,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':id' => $usuario['id'],
             ]);
  
-            // Registra tentativa falha nos logs
             $log = $pdo->prepare("
                 INSERT INTO logs_sistema
                     (usuario_id, acao, tabela_afetada, registro_id, descricao, ip_address)
@@ -106,10 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ? "Senha incorreta. Você tem {$restantes} tentativa(s) antes do bloqueio."
                 : 'Conta bloqueada por 30 minutos devido a múltiplas tentativas incorretas.';
  
-        // ── LOGIN BEM-SUCEDIDO ────────────────────────────────────────────
         } else {
  
-            // Zera tentativas e bloqueio
             $pdo->prepare("
                 UPDATE usuarios
                 SET tentativas_login = 0,
@@ -117,7 +96,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 WHERE id = :id
             ")->execute([':id' => $usuario['id']]);
  
-            // Registra login com sucesso nos logs
             $log = $pdo->prepare("
                 INSERT INTO logs_sistema
                     (usuario_id, acao, tabela_afetada, registro_id, descricao, ip_address)
@@ -129,18 +107,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':desc' => "Login realizado com sucesso — perfil: {$usuario['perfil']}",
                 ':ip'   => $_SERVER['REMOTE_ADDR'] ?? 'desconhecido',
             ]);
- 
-            // Regenera ID de sessão (proteção contra session fixation)
             session_regenerate_id(true);
  
-            // Grava dados do usuário na sessão
             $_SESSION['usuario_id']    = $usuario['id'];
             $_SESSION['usuario_nome']  = $usuario['nome'];
             $_SESSION['usuario_email'] = $usuario['email'];
             $_SESSION['perfil']        = $usuario['perfil'];
             $_SESSION['login_em']      = time();
  
-            // Redireciona para o dashboard
             header('Location: pages/dashboard.php');
             exit;
         }
@@ -159,7 +133,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
 <div class="login-wrapper">
  
-  <!-- ── Painel esquerdo ─────────────────────────────────────── -->
   <div class="login-left">
     <div class="logo-icon">🌿</div>
     <h1>SYNAGRO</h1>
@@ -174,7 +147,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </ul>
   </div>
  
-  <!-- ── Painel direito: formulário ──────────────────────────── -->
   <div class="login-right">
     <h2>Bem-vindo de volta</h2>
     <p class="subtitle">Faça login para acessar o SynAgro System</p>
@@ -218,13 +190,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
     </form>
  
-    <!-- Link para cadastro -->
     <p style="text-align:center;margin-top:18px;font-size:13px;color:#5A5A5A">
       Não tem uma conta?
       <a href="register.php" style="color:#2C5F2D;font-weight:700;text-decoration:none">Criar conta grátis</a>
     </p>
  
-    <!-- Dica de teste para a AV2 -->
     <div class="hint">
       <strong>Usuários de teste (AV2):</strong><br>
       admin@synagro.com / <em>senha: SynAgro@2025</em> → Administrador<br>
