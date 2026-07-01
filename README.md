@@ -51,7 +51,3 @@ O sistema nasce para transformar a realidade de produtores que dependem de anota
 - **Git & GitHub** - Versionamento
 - **Docker** - Ambiente de desenvolvimento (opcional)
 - **phpMyAdmin** - Gerenciamento do banco
-
----
-
-## 📁 Estrutura do Projeto
