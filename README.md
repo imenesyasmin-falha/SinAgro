@@ -35,21 +35,6 @@ O sistema nasce para transformar a realidade de produtores que dependem de anota
 
 ---
 
-## 🖥️ Demonstração
-
-### Tela de Login
-![Tela de Login](docs/images/login.png)
-
-### Dashboard
-![Dashboard](docs/images/dashboard.png)
-
-### Gestão de Plantação
-![Plantação](docs/images/plantacao.png)
-
-*(Adicione mais imagens do sistema em funcionamento)*
-
----
-
 ## 🚀 Tecnologias Utilizadas
 
 ### Backend
