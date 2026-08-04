@@ -8,7 +8,6 @@ $pageActive = 'dashboard';
 $usuario    = usuarioAtual();
 $pdo        = conectar();
 
-// Dados
 $stats = ['propriedades'=>0,'culturas'=>0,'animais'=>0,'equipamentos'=>0,'estoque_critico'=>0,'manutencoes'=>0,'receitas'=>0,'despesas'=>0];
 try {
     $stats['propriedades']   = $pdo->query("SELECT COUNT(*) FROM propriedades WHERE deleted_at IS NULL")->fetchColumn();
@@ -43,7 +42,6 @@ function moeda($v){ return 'R$ '.number_format($v,2,',','.'); }
 <div class="main-content">
 <div class="page-body">
 
-  <!-- Boas vindas -->
   <div class="section-header fade-up" style="margin-bottom:24px">
     <div>
       <div class="section-title">
@@ -54,7 +52,6 @@ function moeda($v){ return 'R$ '.number_format($v,2,',','.'); }
     <span class="badge badge-green"><?= $usuario['label'] ?></span>
   </div>
 
-  <!-- Stat cards -->
   <div class="grid grid-4" style="margin-bottom:24px">
 
     <div class="stat-card fade-up" style="--accent:#4ADE80">
@@ -119,10 +116,8 @@ function moeda($v){ return 'R$ '.number_format($v,2,',','.'); }
 
   </div>
 
-  <!-- Tabelas -->
   <div class="grid grid-2">
 
-    <!-- Propriedades recentes -->
     <div class="card fade-up">
       <div class="card-header">
         <div>
@@ -160,7 +155,6 @@ function moeda($v){ return 'R$ '.number_format($v,2,',','.'); }
       <?php endif; ?>
     </div>
 
-    <!-- Logs (admin) ou boas-vindas (outros) -->
     <?php if($usuario['perfil']==='admin' && !empty($logs)): ?>
     <div class="card fade-up">
       <div class="card-header">
