@@ -1,20 +1,11 @@
 <?php
-// =============================================================================
-//  SynAgro — Componente: Sidebar + Topbar
-//  includes/layout.php
-//  Uso: include __DIR__ . '/../includes/layout.php';
-//       Defina $pageTitle e $pageActive antes de incluir
-// =============================================================================
-
 $usuario  = usuarioAtual();
 $pageTitle  = $pageTitle  ?? 'Dashboard';
 $pageActive = $pageActive ?? 'dashboard';
 
-// Iniciais do usuário para avatar
 $partes  = explode(' ', $usuario['nome']);
 $iniciais = strtoupper(($partes[0][0] ?? '') . ($partes[1][0] ?? ''));
 
-// Módulos e ícones
 $todosModulos = [
     'dashboard'    => ['icon' => '⊞',  'label' => 'Dashboard',    'section' => 'menu'],
     'propriedades' => ['icon' => '🏡', 'label' => 'Propriedades', 'section' => 'menu'],
@@ -38,7 +29,6 @@ $sections = [
     'admin'    => 'Admin',
 ];
 
-// Agrupa módulos permitidos por seção
 $agrupados = [];
 foreach ($todosModulos as $key => $mod) {
     if (in_array($key, $modulosPermitidos)) {
@@ -46,12 +36,10 @@ foreach ($todosModulos as $key => $mod) {
     }
 }
 
-// Base path relativo (pages/ ou raiz)
 $isPage = str_contains($_SERVER['SCRIPT_FILENAME'], '/pages/');
 $base   = $isPage ? '../' : '';
 ?>
 
-<!-- ── SIDEBAR ──────────────────────────────────────────────────────────── -->
 <nav class="sidebar" id="sidebar">
 
   <div class="sidebar-brand">
@@ -95,7 +83,6 @@ $base   = $isPage ? '../' : '';
 
 </nav>
 
-<!-- ── TOPBAR ────────────────────────────────────────────────────────────── -->
 <header class="topbar">
   <div class="topbar-left">
     <div>
@@ -105,20 +92,17 @@ $base   = $isPage ? '../' : '';
   </div>
 
   <div class="topbar-right">
-    <!-- Notificações -->
     <button class="topbar-icon-btn" title="Notificações">
       🔔
       <span class="notif-dot"></span>
     </button>
 
-    <!-- Perfil chip -->
     <div class="profile-chip">
       <div class="chip-avatar"><?= $iniciais ?></div>
       <span class="chip-name"><?= explode(' ', limpar($usuario['nome']))[0] ?></span>
       <span class="badge badge-green" style="margin-left:4px"><?= $usuario['label'] ?></span>
     </div>
 
-    <!-- Logout -->
     <a href="<?= $base ?>logout.php" class="btn btn-ghost" style="padding:7px 12px;font-size:12px">
       Sair →
     </a>
