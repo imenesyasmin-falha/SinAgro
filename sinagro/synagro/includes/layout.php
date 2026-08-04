@@ -45,7 +45,7 @@ $base   = $isPage ? '../' : '';
   <div class="sidebar-brand">
     <span class="brand-icon">🌿</span>
     <div class="brand-text">
-      <strong>SYNAGRO</strong>
+      <strong>SINAGRO</strong>
       <span>System</span>
     </div>
   </div>
@@ -59,7 +59,6 @@ $base   = $isPage ? '../' : '';
           $ativo    = ($pageActive === $key) ? 'active' : '';
           $href     = ($key === 'dashboard') ? $base . 'pages/dashboard.php' : $base . "pages/{$key}.php";
           $badgeNum = '';
-          // Badge de alertas
           if (isset($alertas[$key])) $badgeNum = $alertas[$key];
         ?>
         <a href="<?= $href ?>" class="nav-item <?= $ativo ?>" data-tip="<?= $mod['label'] ?>">
