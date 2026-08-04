@@ -1,11 +1,9 @@
 <?php
-// Gerador de páginas internas — inclua e customize $pageTitle, $pageActive, $tableData
 require_once '../config/conexao.php';
 require_once '../includes/auth.php';
 exigirLogin('../');
 
-/* ── Configuração por página ────────────────────────────────────────────── */
-$slug = basename($_SERVER['SCRIPT_FILENAME'], '.php'); // ex: "estoque"
+$slug = basename($_SERVER['SCRIPT_FILENAME'], '.php'); 
 
 $config = [
   'propriedades' => [
@@ -168,12 +166,10 @@ $pageTitle  = $cfg['title'];
 $pageActive = $slug;
 $usuario    = usuarioAtual();
 
-// Controle de acesso
 if (!temAcesso($cfg['modulo'])) {
     header('Location: dashboard.php?erro=acesso_negado'); exit;
 }
 
-// Busca dados
 $rows = [];
 try {
     $pdo  = conectar();
