@@ -1,49 +1,124 @@
 <?php
 require_once 'config/conexao.php';
 require_once 'includes/auth.php';
-
-if (usuarioLogado()) { header('Location: pages/dashboard.php'); exit; }
-
-$erro = $sucesso = $email = '';
-if (isset($_GET['sessao']) && $_GET['sessao'] === 'expirada') $erro = 'Sua sessão expirou. Faça login novamente.';
-if (isset($_GET['logout']) && $_GET['logout'] === '1') $sucesso = 'Você saiu com segurança. Até logo!';
-
+ 
+if (usuarioLogado()) {
+    header('Location: pages/dashboard.php');
+    exit;
+}
+ 
+$erro    = '';
+$sucesso = '';
+$email   = '';
+ 
+if (isset($_GET['sessao']) && $_GET['sessao'] === 'expirada') {
+    $erro = 'Sua sessão expirou. Faça login novamente.';
+}
+if (isset($_GET['logout']) && $_GET['logout'] === '1') {
+    $sucesso = 'Você saiu com segurança. Até logo!';
+}
+ 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = limpar($_POST['email'] ?? '');
-    $senha = $_POST['senha'] ?? '';
-
+ 
+    $email  = limpar($_POST['email']  ?? '');
+    $senha  = $_POST['senha'] ?? '';       
+ 
+    // Validações básicas antes de tocar no banco
     if (empty($email) || empty($senha)) {
-        $erro = 'Preencha e-mail e senha.';
+        $erro = 'Preencha o e-mail e a senha para continuar.';
+ 
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $erro = 'Formato de e-mail inválido.';
+ 
     } else {
-        $pdo  = conectar();
-        $stmt = $pdo->prepare("SELECT id,nome,email,senha_hash,perfil,tentativas_login,bloqueado_ate,ativo FROM usuarios WHERE email=:e LIMIT 1");
-        $stmt->execute([':e' => $email]);
-        $u = $stmt->fetch();
-
-        if (!$u || !$u['ativo']) {
+        $pdo = conectar();
+ 
+        $stmt = $pdo->prepare("
+            SELECT id, nome, email, senha_hash, perfil,
+                   tentativas_login, bloqueado_ate, ativo
+            FROM usuarios
+            WHERE email = :email
+            LIMIT 1
+        ");
+        $stmt->execute([':email' => $email]);
+        $usuario = $stmt->fetch();
+ 
+        if (!$usuario || !$usuario['ativo']) {
             $erro = 'E-mail ou senha incorretos.';
-        } elseif ($u['bloqueado_ate'] && strtotime($u['bloqueado_ate']) > time()) {
-            $min  = ceil((strtotime($u['bloqueado_ate']) - time()) / 60);
-            $erro = "Conta bloqueada. Tente em {$min} min.";
-        } elseif (!password_verify($senha, $u['senha_hash'])) {
-            $nt = $u['tentativas_login'] + 1;
-            $bl = $nt >= 5 ? date('Y-m-d H:i:s', strtotime('+30 minutes')) : null;
-            $pdo->prepare("UPDATE usuarios SET tentativas_login=:t,bloqueado_ate=:b WHERE id=:id")->execute([':t'=>$nt,':b'=>$bl,':id'=>$u['id']]);
-            $pdo->prepare("INSERT INTO logs_sistema(usuario_id,acao,tabela_afetada,registro_id,descricao,ip_address)VALUES(:u,'login_falhou','usuarios',:r,:d,:ip)")->execute([':u'=>$u['id'],':r'=>$u['id'],':d'=>"Tentativa {$nt} falhou",':ip'=>$_SERVER['REMOTE_ADDR']??'']);
-            $rest = max(0,5-$nt);
-            $erro = $rest > 0 ? "Senha incorreta. {$rest} tentativa(s) restante(s)." : 'Conta bloqueada por 30 minutos.';
+ 
+        } elseif ($usuario['bloqueado_ate'] && strtotime($usuario['bloqueado_ate']) > time()) {
+            $minutos = ceil((strtotime($usuario['bloqueado_ate']) - time()) / 60);
+            $erro = "Conta bloqueada por excesso de tentativas. Tente novamente em {$minutos} minuto(s).";
+ 
+        } elseif (!password_verify($senha, $usuario['senha_hash'])) {
+ 
+            $novasTentativas = $usuario['tentativas_login'] + 1;
+            $bloquear        = null;
+ 
+            if ($novasTentativas >= 5) {
+                $bloquear = date('Y-m-d H:i:s', strtotime('+30 minutes'));
+            }
+ 
+            $upd = $pdo->prepare("
+                UPDATE usuarios
+                SET tentativas_login = :t,
+                    bloqueado_ate    = :b
+                WHERE id = :id
+            ");
+            $upd->execute([
+                ':t'  => $novasTentativas,
+                ':b'  => $bloquear,
+                ':id' => $usuario['id'],
+            ]);
+ 
+            $log = $pdo->prepare("
+                INSERT INTO logs_sistema
+                    (usuario_id, acao, tabela_afetada, registro_id, descricao, ip_address)
+                VALUES (:uid, 'login_falhou', 'usuarios', :rid, :desc, :ip)
+            ");
+            $log->execute([
+                ':uid'  => $usuario['id'],
+                ':rid'  => $usuario['id'],
+                ':desc' => "Tentativa {$novasTentativas} de login com senha incorreta",
+                ':ip'   => $_SERVER['REMOTE_ADDR'] ?? 'desconhecido',
+            ]);
+ 
+            $restantes = max(0, 5 - $novasTentativas);
+            $erro = $restantes > 0
+                ? "Senha incorreta. Você tem {$restantes} tentativa(s) antes do bloqueio."
+                : 'Conta bloqueada por 30 minutos devido a múltiplas tentativas incorretas.';
+ 
         } else {
-            $pdo->prepare("UPDATE usuarios SET tentativas_login=0,bloqueado_ate=NULL WHERE id=:id")->execute([':id'=>$u['id']]);
-            $pdo->prepare("INSERT INTO logs_sistema(usuario_id,acao,tabela_afetada,registro_id,descricao,ip_address)VALUES(:u,'login','usuarios',:r,:d,:ip)")->execute([':u'=>$u['id'],':r'=>$u['id'],':d'=>"Login OK — {$u['perfil']}",':ip'=>$_SERVER['REMOTE_ADDR']??'']);
+ 
+            $pdo->prepare("
+                UPDATE usuarios
+                SET tentativas_login = 0,
+                    bloqueado_ate    = NULL
+                WHERE id = :id
+            ")->execute([':id' => $usuario['id']]);
+ 
+            $log = $pdo->prepare("
+                INSERT INTO logs_sistema
+                    (usuario_id, acao, tabela_afetada, registro_id, descricao, ip_address)
+                VALUES (:uid, 'login', 'usuarios', :rid, :desc, :ip)
+            ");
+            $log->execute([
+                ':uid'  => $usuario['id'],
+                ':rid'  => $usuario['id'],
+                ':desc' => "Login realizado com sucesso — perfil: {$usuario['perfil']}",
+                ':ip'   => $_SERVER['REMOTE_ADDR'] ?? 'desconhecido',
+            ]);
+ 
             session_regenerate_id(true);
-            $_SESSION['usuario_id']    = $u['id'];
-            $_SESSION['usuario_nome']  = $u['nome'];
-            $_SESSION['usuario_email'] = $u['email'];
-            $_SESSION['perfil']        = $u['perfil'];
+ 
+            $_SESSION['usuario_id']    = $usuario['id'];
+            $_SESSION['usuario_nome']  = $usuario['nome'];
+            $_SESSION['usuario_email'] = $usuario['email'];
+            $_SESSION['perfil']        = $usuario['perfil'];
             $_SESSION['login_em']      = time();
-            header('Location: pages/dashboard.php'); exit;
+ 
+            header('Location: pages/dashboard.php');
+            exit;
         }
     }
 }
@@ -51,66 +126,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SynAgro — Login</title>
-<link rel="stylesheet" href="assets/css/synagro.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SinAgro Sistema — Login</title>
+  <link rel="stylesheet" href="../assets/css/sinagro.css">
 </head>
 <body>
-<div class="auth-page">
-<div class="auth-card">
-
-  <!-- Esquerdo -->
-  <div class="auth-left">
-    <span class="al-icon">🌿</span>
-    <h1>SYNAGRO</h1>
-    <div class="al-line"></div>
-    <p>Tecnologia e gestão inteligente do carbono no campo.</p>
-    <ul>
-      <li>Gestão de culturas e rebanho</li>
-      <li>Controle de estoque e equipamentos</li>
-      <li>Financeiro e relatórios</li>
-      <li>Ciclo sustentável do carbono</li>
+ 
+<div class="login-wrapper">
+  <div class="login-left">
+    <div class="logo-icon">🌿</div>
+    <h1>SINAGRO</h1>
+    <div class="divider-line"></div>
+    <p>Tecnologia, sustentabilidade e gestão inteligente do carbono no campo.</p>
+    <ul class="pillar-list">
+      <li>Produção Agrícola</li>
+      <li>Eficiência Energética</li>
+      <li>Gestão do Carbono</li>
+      <li>Controle Financeiro</li>
+      <li>Estoque e Equipamentos</li>
     </ul>
   </div>
-
-  <!-- Direito -->
-  <div class="auth-right">
+ 
+  <div class="login-right">
     <h2>Bem-vindo de volta</h2>
-    <p class="auth-sub">Acesse o painel da sua propriedade rural</p>
-
+    <p class="subtitle">Faça login para acessar o SinAgro System</p>
+ 
     <?php if ($erro): ?>
-      <div class="alert alert-error">⚠ <?= limpar($erro) ?></div>
+      <div class="alert alert-erro">⚠ <?= limpar($erro) ?></div>
     <?php endif; ?>
+ 
     <?php if ($sucesso): ?>
-      <div class="alert alert-success">✓ <?= limpar($sucesso) ?></div>
+      <div class="alert alert-sucesso">✓ <?= limpar($sucesso) ?></div>
     <?php endif; ?>
-
+ 
     <form method="POST" action="login.php" novalidate>
+ 
       <div class="form-group">
-        <label class="form-label" for="email">E-mail <span class="req">*</span></label>
-        <input class="form-control" type="email" id="email" name="email"
-               value="<?= limpar($email) ?>" placeholder="seu@email.com.br" required autocomplete="email">
+        <label for="email">E-mail</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value="<?= limpar($email) ?>"
+          placeholder="seu@email.com.br"
+          required
+          autocomplete="email"
+        >
       </div>
+ 
       <div class="form-group">
-        <label class="form-label" for="senha">Senha <span class="req">*</span></label>
-        <input class="form-control" type="password" id="senha" name="senha"
-               placeholder="••••••••" required autocomplete="current-password">
+        <label for="senha">Senha</label>
+        <input
+          type="password"
+          id="senha"
+          name="senha"
+          placeholder="••••••••"
+          required
+          autocomplete="current-password"
+        >
       </div>
-      <button type="submit" class="btn btn-primary btn-full">Entrar no sistema →</button>
+ 
+      <button type="submit" class="btn-login">Entrar no Sistema</button>
+ 
     </form>
-
-    <div class="auth-link">
-      Não tem conta? <a href="register.php">Criar conta grátis</a>
+ 
+    <p style="text-align:center;margin-top:18px;font-size:13px;color:#5A5A5A">
+      Não tem uma conta?
+      <a href="register.php" style="color:#2C5F2D;font-weight:700;text-decoration:none">Criar conta grátis</a>
+    </p>
+ 
+    <div class="hint">
+      <strong>Usuários de teste (AV2):</strong><br>
+      admin@synagro.com / <em>senha: SinAgro@2026</em> → Administrador<br>
+      produtor@synagro.com / <em>senha: SinAgro@2026</em> → Proprietário<br>
+      operador@synagro.com / <em>senha: SinAgro@2026</em> → Operador
     </div>
-
-    <div class="dev-hint">
-      <strong>Usuários de teste:</strong><br>
-      admin@synagro.com · produtor@synagro.com · operador@synagro.com<br>
-      <em>Senha: SynAgro@2025</em>
-    </div>
+ 
   </div>
-
-</div>
 </div>
 </body>
 </html>
