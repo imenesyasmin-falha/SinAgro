@@ -68,13 +68,6 @@ function moeda($v){ return 'R$ '.number_format($v,2,',','.'); }
       <div class="stat-delta delta-up">↑ Em campo</div>
     </div>
 
-    <div class="stat-card fade-up" style="--accent:#60A5FA">
-      <span class="stat-icon">🐄</span>
-      <div class="stat-value"><?= (int)$stats['animais'] ?></div>
-      <div class="stat-label">Animais ativos</div>
-      <div class="stat-delta delta-up">↑ No rebanho</div>
-    </div>
-
     <div class="stat-card fade-up" style="--accent:#FBBF24">
       <span class="stat-icon">🚜</span>
       <div class="stat-value"><?= (int)$stats['equipamentos'] ?></div>
