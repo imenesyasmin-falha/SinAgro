@@ -101,42 +101,6 @@ CREATE INDEX idx_areas_prop ON areas_propriedades (propriedade_id);
 CREATE INDEX idx_areas_tipo ON areas_propriedades (tipo);
  
 -- =============================================================================
-CREATE TABLE especies (
-    id              INT UNSIGNED   NOT NULL AUTO_INCREMENT,
-    nome_comum      VARCHAR(120)   NOT NULL,
-    nome_cientifico VARCHAR(180)       NULL,
-    categoria       ENUM(
-                        'grao',
-                        'hortalica',
-                        'fruta',
-                        'fibra',
-                        'forrageira',
-                        'florestal',
-                        'bovino',
-                        'suino',
-                        'avicola',
-                        'equino',
-                        'caprino',
-                        'piscicultura',
-                        'outro'
-                    )              NOT NULL,
-    ciclo_dias_min  SMALLINT UNSIGNED  NULL COMMENT 'Ciclo mínimo em dias',
-    ciclo_dias_max  SMALLINT UNSIGNED  NULL COMMENT 'Ciclo máximo em dias',
-    observacoes     TEXT               NULL,
-    criado_em       DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    atualizado_em   DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
- 
-    CONSTRAINT pk_especies          PRIMARY KEY (id),
-    CONSTRAINT uq_especies_nome     UNIQUE (nome_comum),
-    CONSTRAINT chk_ciclo_consistente CHECK (
-        ciclo_dias_min IS NULL OR ciclo_dias_max IS NULL OR
-        ciclo_dias_min <= ciclo_dias_max
-    )
-) ENGINE=InnoDB COMMENT='Catálogo de espécies vegetais e animais';
- 
-CREATE INDEX idx_especies_categoria ON especies (categoria);
- 
--- =============================================================================
 CREATE TABLE culturas (
     id              INT UNSIGNED   NOT NULL AUTO_INCREMENT,
     area_id         INT UNSIGNED   NOT NULL,
@@ -204,42 +168,7 @@ CREATE TABLE ciclos_plantio (
  
 CREATE INDEX idx_ciclos_cultura   ON ciclos_plantio (cultura_id);
 CREATE INDEX idx_ciclos_concluida ON ciclos_plantio (concluida);
- 
--- =============================================================================
-CREATE TABLE animais (
-    id              INT UNSIGNED   NOT NULL AUTO_INCREMENT,
-    propriedade_id  INT UNSIGNED   NOT NULL,
-    especie_id      INT UNSIGNED   NOT NULL,
-    identificacao   VARCHAR(60)    NOT NULL COMMENT 'Brinco, chip, nome etc.',
-    raca            VARCHAR(80)        NULL,
-    sexo            ENUM('M','F','I')  NOT NULL DEFAULT 'I' COMMENT 'M=Macho F=Fêmea I=Indefinido',
-    data_nascimento DATE               NULL,
-    peso_kg         DECIMAL(8,2)       NULL CHECK (peso_kg > 0),
-    status          ENUM(
-                        'ativo',
-                        'vendido',
-                        'abatido',
-                        'morto',
-                        'transferido'
-                    )              NOT NULL DEFAULT 'ativo',
-    observacoes     TEXT               NULL,
-    criado_em       DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    atualizado_em   DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    deleted_at      DATETIME           NULL,
- 
-    CONSTRAINT pk_animais        PRIMARY KEY (id),
-    CONSTRAINT fk_anim_prop      FOREIGN KEY (propriedade_id)
-        REFERENCES propriedades (id)
-        ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT fk_anim_especie   FOREIGN KEY (especie_id)
-        REFERENCES especies (id)
-        ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB COMMENT='Rebanho e plantel das propriedades';
- 
-CREATE INDEX idx_anim_prop    ON animais (propriedade_id);
-CREATE INDEX idx_anim_status  ON animais (status);
-CREATE INDEX idx_anim_especie ON animais (especie_id);
- 
+
 -- =============================================================================
 CREATE TABLE categorias_financeiras (
     id          INT UNSIGNED   NOT NULL AUTO_INCREMENT,
