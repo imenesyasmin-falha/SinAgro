@@ -566,16 +566,3 @@ INSERT INTO categorias_financeiras (parent_id, nome, tipo, icone, cor_hex) VALUE
 (6,    'Mão de Obra',               'despesa',  'users',           '#FFCDD2'),
 (6,    'Energia Elétrica',          'despesa',  'zap',             '#FFEBEE'),
 (6,    'Ração e Medicamentos',      'despesa',  'heart',           '#FFEBEE');
- 
--- =============================================================================
-INSERT INTO especies (nome_comum, nome_cientifico, categoria, ciclo_dias_min, ciclo_dias_max) VALUES
-('Soja',         'Glycine max',             'grao',       90,  150),
-('Milho',        'Zea mays',                'grao',       90,  120),
-('Feijão',       'Phaseolus vulgaris',      'grao',       60,   90),
-('Cana-de-açúcar','Saccharum officinarum',  'fibra',     365, 1800),
-('Café',         'Coffea arabica',          'fruta',      730, 1095),
-('Pastagem',     'Urochloa brizantha',      'forrageira',  30,   60),
-('Bovino Corte', 'Bos taurus',              'bovino',    NULL, NULL),
-('Bovino Leite', 'Bos taurus',              'bovino',    NULL, NULL),
-('Frango de Corte','Gallus gallus',         'avicola',     35,   45),
-('Suíno',        'Sus scrofa domesticus',   'suino',      150,  180);
