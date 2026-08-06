@@ -11,7 +11,6 @@ $todosModulos = [
     'propriedades' => ['icon' => '🏡', 'label' => 'Propriedades', 'section' => 'menu'],
     'culturas'     => ['icon' => '🌾', 'label' => 'Culturas',     'section' => 'menu'],
     'ciclos'       => ['icon' => '🔄', 'label' => 'Ciclos',       'section' => 'menu'],
-    'animais'      => ['icon' => '🐄', 'label' => 'Rebanho',      'section' => 'producao'],
     'estoque'      => ['icon' => '📦', 'label' => 'Estoque',      'section' => 'producao'],
     'equipamentos' => ['icon' => '🚜', 'label' => 'Equipamentos', 'section' => 'producao'],
     'manutencoes'  => ['icon' => '🔧', 'label' => 'Manutenções',  'section' => 'producao'],
@@ -46,7 +45,7 @@ $base   = $isPage ? '../' : '';
     <span class="brand-icon">🌿</span>
     <div class="brand-text">
       <strong>SINAGRO</strong>
-      <span>System</span>
+      <span>Sistema</span>
     </div>
   </div>
 
@@ -86,7 +85,7 @@ $base   = $isPage ? '../' : '';
   <div class="topbar-left">
     <div>
       <div class="page-title"><?= $pageTitle ?></div>
-      <div class="page-breadcrumb">SynAgro / <?= $pageTitle ?></div>
+      <div class="page-breadcrumb">SinAgro / <?= $pageTitle ?></div>
     </div>
   </div>
 
