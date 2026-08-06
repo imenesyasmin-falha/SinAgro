@@ -17,9 +17,9 @@ const CORES_PERFIL = [
 ];
 
 const MODULOS_PERFIL = [
-    'admin'        => ['dashboard','propriedades','culturas','ciclos','animais','estoque','equipamentos','manutencoes','financeiro','relatorios','usuarios','logs'],
-    'proprietario' => ['dashboard','propriedades','culturas','ciclos','animais','estoque','equipamentos','manutencoes','financeiro','relatorios'],
-    'gerente'      => ['dashboard','culturas','ciclos','animais','estoque','equipamentos','manutencoes','financeiro'],
+    'admin'        => ['dashboard','propriedades','culturas','ciclos','estoque','equipamentos','manutencoes','financeiro','relatorios','usuarios','logs'],
+    'proprietario' => ['dashboard','propriedades','culturas','ciclos','estoque','equipamentos','manutencoes','financeiro','relatorios'],
+    'gerente'      => ['dashboard','culturas','ciclos','estoque','equipamentos','manutencoes','financeiro'],
     'operador'     => ['dashboard','culturas','ciclos','estoque','equipamentos','manutencoes'],
     'visualizador' => ['dashboard','relatorios'],
 ];
