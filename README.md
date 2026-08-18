@@ -28,7 +28,6 @@ O sistema nasce para transformar a realidade de produtores que dependem de anota
 | 📊 **Dashboard** | Indicadores, gráficos e resumo da propriedade |
 | 🏠 **Propriedade** | Cadastro de fazendas, áreas e setores |
 | 🌱 **Plantação** | Culturas, ciclos, insumos, colheita e produtividade |
-| 🐄 **Animais** | Espécies, lotes, eventos sanitários e reprodutivos |
 | 💰 **Financeiro** | Receitas, despesas, extratos e fluxo de caixa |
 | 📦 **Estoque** | Controle de insumos, alertas de estoque crítico |
 | 🔧 **Equipamentos** | Máquinas, manutenções e status operacional |
