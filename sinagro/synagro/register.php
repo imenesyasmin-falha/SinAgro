@@ -92,8 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
  
             $sucesso = 'Cadastro realizado com sucesso! Você já pode fazer login.';
- 
-            $campos = ['nome' => '', 'email' => '', 'telefone' => '', 'perfil' => 'operador'];
+            $campos  = ['nome' => '', 'email' => '', 'telefone' => '', 'perfil' => 'operador'];
         }
     }
 }
@@ -104,157 +103,175 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SinAgro Sistema — Criar Conta</title>
-  <link rel="stylesheet" href="../assets/css/sinagro.css">
+  <link rel="stylesheet" href="assets/css/sinagro.css">
 </head>
 <body>
-<div class="wrapper">
- 
-  <div class="left">
-    <div class="icon">🌿</div>
-    <h1>SYNAGRO</h1>
-    <div class="line"></div>
-    <p>Crie sua conta e comece a gerenciar sua propriedade rural com tecnologia.</p>
-    <ul class="step-list">
-      <li><span class="step-num">1</span>Preencha seus dados pessoais</li>
-      <li><span class="step-num">2</span>Escolha seu perfil de acesso</li>
-      <li><span class="step-num">3</span>Crie uma senha segura</li>
-      <li><span class="step-num">4</span>Acesse o sistema imediatamente</li>
-    </ul>
-  </div>
- 
-  <div class="right">
-    <h2>Criar nova conta</h2>
-    <p class="sub">Preencha os dados abaixo para acessar o SynAgro System</p>
- 
-    <?php if ($erro): ?>
-      <div class="alert alert-erro">⚠ <?= limpar($erro) ?></div>
-    <?php endif; ?>
- 
-    <?php if ($sucesso): ?>
-      <div class="alert alert-sucesso">
-        ✓ <?= limpar($sucesso) ?>
-        <br><a href="login.php" style="color:#1A3C2A;font-weight:700">→ Clique aqui para fazer login</a>
-      </div>
-    <?php endif; ?>
- 
-    <form method="POST" action="register.php" id="formCadastro" novalidate>
- 
-      <div class="grid-2">
-        <div class="form-group">
-          <label for="nome">Nome completo <span class="obr">*</span></label>
-          <input
-            type="text" id="nome" name="nome"
-            value="<?= limpar($campos['nome']) ?>"
-            placeholder="Ex: João da Silva"
-            required autocomplete="name"
-          >
-        </div>
- 
-        <div class="form-group">
-          <label for="email">E-mail <span class="obr">*</span></label>
-          <input
-            type="email" id="email" name="email"
-            value="<?= limpar($campos['email']) ?>"
-            placeholder="seu@email.com.br"
-            required autocomplete="email"
-          >
-        </div>
-      </div>
- 
-      <div class="form-group" style="max-width:50%;padding-right:10px">
-        <label for="telefone">Telefone / WhatsApp</label>
-        <input
-          type="tel" id="telefone" name="telefone"
-          value="<?= limpar($campos['telefone']) ?>"
-          placeholder="(11) 99999-9999"
-          autocomplete="tel"
-        >
-      </div>
- 
-      <div class="form-group">
-        <label>Perfil de acesso <span class="obr">*</span></label>
-        <input type="hidden" id="perfil-hidden" name="perfil" value="<?= limpar($campos['perfil']) ?>">
-        <div class="perfil-grid" id="perfilGrid">
- 
-          <div class="perfil-card <?= $campos['perfil']==='proprietario'?'selected':'' ?>"
-               onclick="selecionarPerfil('proprietario', this)">
-            <span class="p-icon">🏡</span>
-            <div class="p-name">Proprietário</div>
-            <div class="p-desc">Dono da fazenda</div>
-          </div>
- 
-          <div class="perfil-card <?= $campos['perfil']==='gerente'?'selected':'' ?>"
-               onclick="selecionarPerfil('gerente', this)">
-            <span class="p-icon">📋</span>
-            <div class="p-name">Gerente</div>
-            <div class="p-desc">Gerencia operações</div>
-          </div>
- 
-          <div class="perfil-card <?= $campos['perfil']==='operador'?'selected':'' ?>"
-               onclick="selecionarPerfil('operador', this)">
-            <span class="p-icon">🚜</span>
-            <div class="p-name">Operador</div>
-            <div class="p-desc">Registra atividades</div>
-          </div>
- 
-          <div class="perfil-card <?= $campos['perfil']==='visualizador'?'selected':'' ?>"
-               onclick="selecionarPerfil('visualizador', this)">
-            <span class="p-icon">👁️</span>
-            <div class="p-name">Visualizador</div>
-            <div class="p-desc">Apenas leitura</div>
-          </div>
- 
-          <div class="perfil-card <?= $campos['perfil']==='admin'?'selected':'' ?>"
-               onclick="selecionarPerfil('admin', this)">
-            <span class="p-icon">⚙️</span>
-            <div class="p-name">Admin</div>
-            <div class="p-desc">Acesso total</div>
-          </div>
- 
-        </div>
-      </div>
- 
-      <div class="grid-2">
-        <div class="form-group">
-          <label for="senha">Senha <span class="obr">*</span></label>
-          <input
-            type="password" id="senha" name="senha"
-            placeholder="Mínimo 8 caracteres"
-            required autocomplete="new-password"
-            oninput="avaliarSenha(this.value)"
-          >
-          <div class="senha-forca-bar">
-            <div class="senha-forca-fill" id="forcaFill"></div>
-          </div>
-          <div class="senha-hint" id="forcaTexto">Digite sua senha</div>
-        </div>
- 
-        <div class="form-group">
-          <label for="confirmar_senha">Confirmar senha <span class="obr">*</span></label>
-          <input
-            type="password" id="confirmar_senha" name="confirmar_senha"
-            placeholder="Repita a senha"
-            required autocomplete="new-password"
-            oninput="verificarConfirmacao()"
-          >
-          <div class="senha-hint" id="confirmaTxt"></div>
-        </div>
-      </div>
- 
-      <button type="submit" class="btn btn-verde">Criar minha conta</button>
- 
-    </form>
- 
-    <div class="link-login">
-      Já tem uma conta? <a href="login.php">Fazer login</a>
+
+<div class="auth-page">
+  <div class="auth-card" style="width:1000px">
+
+    <div class="auth-left">
+      <span class="al-icon">🌿</span>
+      <h1>SINAGRO</h1>
+      <div class="al-line"></div>
+      <p>Crie sua conta e comece a gerenciar sua propriedade rural com tecnologia.</p>
+      <ul>
+        <li>Preencha seus dados pessoais</li>
+        <li>Escolha seu perfil de acesso</li>
+        <li>Crie uma senha segura</li>
+        <li>Acesse o sistema imediatamente</li>
+      </ul>
     </div>
- 
+
+    <div class="auth-right" style="padding:36px 40px">
+      <h2>Criar nova conta</h2>
+      <p class="auth-sub">Preencha os dados abaixo para acessar o Sistema SinAgro</p>
+
+      <?php if ($erro): ?>
+        <div class="alert alert-error">⚠ <?= limpar($erro) ?></div>
+      <?php endif; ?>
+
+      <?php if ($sucesso): ?>
+        <div class="alert alert-success">
+          ✓ <?= limpar($sucesso) ?>
+          <br><a href="login.php" style="color:var(--green);font-weight:700">→ Clique aqui para fazer login</a>
+        </div>
+      <?php endif; ?>
+
+      <form method="POST" action="register.php" id="formCadastro" novalidate>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label" for="nome">
+              Nome completo <span style="color:var(--red)">*</span>
+            </label>
+            <input
+              class="form-control"
+              type="text" id="nome" name="nome"
+              value="<?= limpar($campos['nome']) ?>"
+              placeholder="Ex: João da Silva"
+              required autocomplete="name"
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="email">
+              E-mail <span style="color:var(--red)">*</span>
+            </label>
+            <input
+              class="form-control"
+              type="email" id="email" name="email"
+              value="<?= limpar($campos['email']) ?>"
+              placeholder="seu@email.com.br"
+              required autocomplete="email"
+            >
+          </div>
+        </div>
+
+        <div class="form-group" style="max-width:50%;padding-right:10px">
+          <label class="form-label" for="telefone">Telefone / WhatsApp</label>
+          <input
+            class="form-control"
+            type="tel" id="telefone" name="telefone"
+            value="<?= limpar($campos['telefone']) ?>"
+            placeholder="(11) 99999-9999"
+            autocomplete="tel"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            Perfil de acesso <span style="color:var(--red)">*</span>
+          </label>
+          <input type="hidden" id="perfil-hidden" name="perfil" value="<?= limpar($campos['perfil']) ?>">
+
+          <div class="perfil-grid" id="perfilGrid">
+
+            <div class="perfil-card <?= $campos['perfil']==='proprietario' ? 'selected' : '' ?>"
+                 onclick="selecionarPerfil('proprietario', this)">
+              <span class="pi">🏡</span>
+              <div class="pn">Proprietário</div>
+              <div class="pd">Dono da fazenda</div>
+            </div>
+
+            <div class="perfil-card <?= $campos['perfil']==='gerente' ? 'selected' : '' ?>"
+                 onclick="selecionarPerfil('gerente', this)">
+              <span class="pi">📋</span>
+              <div class="pn">Gerente</div>
+              <div class="pd">Gerencia operações</div>
+            </div>
+
+            <div class="perfil-card <?= $campos['perfil']==='operador' ? 'selected' : '' ?>"
+                 onclick="selecionarPerfil('operador', this)">
+              <span class="pi">🚜</span>
+              <div class="pn">Operador</div>
+              <div class="pd">Registra atividades</div>
+            </div>
+
+            <div class="perfil-card <?= $campos['perfil']==='visualizador' ? 'selected' : '' ?>"
+                 onclick="selecionarPerfil('visualizador', this)">
+              <span class="pi">👁️</span>
+              <div class="pn">Visualizador</div>
+              <div class="pd">Apenas leitura</div>
+            </div>
+
+            <div class="perfil-card <?= $campos['perfil']==='admin' ? 'selected' : '' ?>"
+                 onclick="selecionarPerfil('admin', this)">
+              <span class="pi">⚙️</span>
+              <div class="pn">Admin</div>
+              <div class="pd">Acesso total</div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label" for="senha">
+              Senha <span style="color:var(--red)">*</span>
+            </label>
+            <input
+              class="form-control"
+              type="password" id="senha" name="senha"
+              placeholder="Mínimo 8 caracteres"
+              required autocomplete="new-password"
+              oninput="avaliarSenha(this.value)"
+            >
+            <div class="strength-bar">
+              <div class="strength-fill" id="forcaFill"></div>
+            </div>
+            <div class="strength-hint" id="forcaTexto">Digite sua senha</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="confirmar_senha">
+              Confirmar senha <span style="color:var(--red)">*</span>
+            </label>
+            <input
+              class="form-control"
+              type="password" id="confirmar_senha" name="confirmar_senha"
+              placeholder="Repita a senha"
+              required autocomplete="new-password"
+              oninput="verificarConfirmacao()"
+            >
+            <div class="strength-hint" id="confirmaTxt"></div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">
+          Criar minha conta →
+        </button>
+
+      </form>
+
+      <div class="auth-link">
+        Já tem uma conta? <a href="login.php">Fazer login</a>
+      </div>
+
+    </div>
   </div>
 </div>
+
 <script src="script.js"></script>
 </body>
 </html>
- 
-
-
-
