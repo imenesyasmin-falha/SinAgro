@@ -19,7 +19,6 @@ $dados = [
     'total_propriedades'  => 0,
     'total_culturas'      => 0,
     'total_equipamentos'  => 0,
-    'total_animais'       => 0,
     'estoque_critico'     => 0,
     'manutencoes_abertas' => 0,
     'receitas_mes'        => 0,
@@ -60,10 +59,6 @@ try {
  
     $dados['total_equipamentos'] = $pdo
         ->query("SELECT COUNT(*) FROM equipamentos WHERE status = 'operacional' AND deleted_at IS NULL")
-        ->fetchColumn();
- 
-    $dados['total_animais'] = $pdo
-        ->query("SELECT COUNT(*) FROM animais WHERE status = 'ativo' AND deleted_at IS NULL")
         ->fetchColumn();
  
     $dados['estoque_critico']     = $pdo->query("SELECT COUNT(*) FROM vw_estoque_critico")->fetchColumn();
@@ -147,12 +142,6 @@ function moeda(float $v): string {
       <span class="stat-icon">🌾</span>
       <div class="stat-value"><?= (int)$dados['total_culturas'] ?></div>
       <div class="stat-label">Culturas em andamento</div>
-    </div>
- 
-    <div class="stat-card fade-up" style="--accent:#60A5FA">
-      <span class="stat-icon">🐄</span>
-      <div class="stat-value"><?= (int)$dados['total_animais'] ?></div>
-      <div class="stat-label">Animais ativos</div>
     </div>
  
     <div class="stat-card fade-up" style="--accent:#FBBF24">
