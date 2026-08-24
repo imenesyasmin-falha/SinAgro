@@ -6,13 +6,13 @@
 ---
 
 ## 📋 Índice
-1. [Versões Suportadas]
-2. [Reportando uma Vulnerabilidade]
-3. [Processo de Resposta]
-4. [Práticas de Segurança]
-5. [Divulgação Responsável]
-6. [Recompensas]
-7. [Contato]
+1. Versões Suportadas
+2. Reportando uma Vulnerabilidade
+3. Processo de Resposta
+4. Práticas de Segurança
+5. Divulgação Responsável
+6. Recompensas
+7. Contato
 
 ---
 
