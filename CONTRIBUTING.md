@@ -45,8 +45,7 @@ Obrigado por considerar contribuir com o SinAgro! 🎉
 ## Processo de Pull Request
 
 1. Atualize o README se necessário
-2. Atualize o CHANGELOG.md
-3. Certifique-se que os testes passam
-4. Peça revisão de pelo menos um membro da equipe
+2. Certifique-se que os testes passam
+3. Peça revisão de pelo menos um membro da equipe
 
 Obrigado por contribuir! 🌾
