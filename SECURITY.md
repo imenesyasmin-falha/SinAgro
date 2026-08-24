@@ -1,7 +1,7 @@
 # 🔒 Política de Segurança - SinAgro
 
-**Última atualização:** 17 de abril de 2026  
-**Versão:** 1.0
+**Última atualização:** 24 de Agosto de 2026  
+**Versão:** 1.2
 
 ---
 
@@ -22,8 +22,8 @@ Abaixo estão as versões do SinAgro que atualmente recebem suporte com atualiza
 
 | Versão | Suportada | Observações |
 |--------|-----------|-------------|
-| 1.0.x  | ✅ Sim    | Versão estável atual |
-| 0.x.x  | ❌ Não    | Versões de desenvolvimento |
+| 1.3.6  | ✅ Sim    | Versão estável atual |
+| 0.1.5  | ❌ Não    | Versões de desenvolvimento |
 
 > ⚠️ **Recomendação:** Sempre utilize a versão mais recente disponível para garantir as correções de segurança mais atualizadas.
 
