@@ -3,7 +3,7 @@ require_once '../config/conexao.php';
 require_once '../includes/auth.php';
 exigirLogin('../');
 
-$slug = basename($_SERVER['SCRIPT_FILENAME'], '.php');
+$slug = basename($_SERVER['SCRIPT_FILENAME'], '.php'); 
 
 $config = [
   'propriedades' => [
@@ -162,21 +162,21 @@ try {
     $rows = $pdo->query($cfg['sql'])->fetchAll(PDO::FETCH_NUM);
 } catch(PDOException $e){ error_log($e->getMessage()); }
 
-function badgify(string $val, array $map): string {
+if (!function_exists("badgify")) { function badgify(string $val, array $map): string {
     foreach ($map as $k => $cls) {
         if (strtolower($val) === strtolower($k)) {
             return "<span class=\"badge {$cls}\">{$val}</span>";
         }
     }
     return htmlspecialchars($val, ENT_QUOTES, 'UTF-8');
-}
+} }
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title><?= $cfg['title'] ?> — SynAgro</title>
-<link rel="stylesheet" href="../assets/css/synagro.css">
+<title><?= $cfg['title'] ?> — SinAgro Sistema</title>
+<link rel="stylesheet" href="../assets/css/sinagro.css">
 </head>
 <body>
 
@@ -197,7 +197,6 @@ function badgify(string $val, array $map): string {
   </div>
 
   <div class="card fade-up">
-
     <div style="margin-bottom:16px;display:flex;gap:10px;align-items:center">
       <input class="form-control" type="text" id="busca" placeholder="Buscar..."
              style="max-width:280px" oninput="filtrar(this.value)">
