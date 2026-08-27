@@ -201,7 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
 
       <div class="dev-hint">
-        <strong>Usuários de teste (AV2):</strong><br>
+        <strong>Usuários de teste:</strong><br>
         admin@synagro.com · produtor@synagro.com · operador@synagro.com<br>
         <em>Senha: SinAgro@2026</em>
       </div>
