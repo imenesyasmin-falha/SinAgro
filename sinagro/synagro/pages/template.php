@@ -53,20 +53,6 @@ $config = [
     'badge'   => ['Sim'=>'badge-green','Não'=>'badge-gold'],
     'bIdx'    => 4,
   ],
-  'animais' => [
-    'title'   => 'Rebanho',
-    'icon'    => '🐄',
-    'sub'     => 'Animais cadastrados nas propriedades',
-    'cols'    => ['ID','Espécie','Raça','Sexo','Peso (kg)','Status'],
-    'sql'     => "SELECT a.identificacao,e.nome_comum,IFNULL(a.raca,'—'),
-                         CASE a.sexo WHEN 'M' THEN 'Macho' WHEN 'F' THEN 'Fêmea' ELSE '—' END,
-                         IFNULL(a.peso_kg,'—'),a.status
-                  FROM animais a JOIN especies e ON e.id=a.especie_id
-                  WHERE a.deleted_at IS NULL ORDER BY a.criado_em DESC",
-    'modulo'  => 'animais',
-    'badge'   => ['ativo'=>'badge-green','vendido'=>'badge-gray','morto'=>'badge-red','abatido'=>'badge-red','transferido'=>'badge-blue'],
-    'bIdx'    => 5,
-  ],
   'estoque' => [
     'title'   => 'Estoque',
     'icon'    => '📦',
