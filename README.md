@@ -127,17 +127,6 @@ Em muitas pequenas propriedades rurais brasileiras:
 
 ---
 
-### 🐄 Animais
-
-| Funcionalidade | Descrição | Status |
-|----------------|-----------|--------|
-| 🐮 **Cadastrar Espécies** | Tipos de animais da propriedade | ✅ Concluído |
-| 📋 **Lotes** | Agrupamento de animais | 🔄 Em desenvolvimento |
-| 💉 **Eventos Sanitários** | Vacinação, doenças, tratamentos | 🔄 Em desenvolvimento |
-| 🐣 **Reprodução** | Controle de nascimentos e inseminação | 🔄 Em desenvolvimento |
-
----
-
 ### 💰 Financeiro
 
 | Funcionalidade | Descrição | Status |
