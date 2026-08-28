@@ -18,32 +18,6 @@
 
 ---
 
-## 📋 Índice
-
-- [Sobre o Projeto](#-sobre-o-projeto)
-- [Motivação](#-motivação)
-- [Funcionalidades](#-funcionalidades)
-- [Tecnologias Utilizadas](#-tecnologias-utilizadas)
-- [Arquitetura do Sistema](#-arquitetura-do-sistema)
-- [Estrutura do Projeto](#-estrutura-do-projeto)
-- [Pré-requisitos](#-pré-requisitos)
-- [Instalação e Configuração](#-instalação-e-configuração)
-- [Banco de Dados](#-banco-de-dados)
-- [Guia de Uso](#-guia-de-uso)
-- [Módulos do Sistema](#-módulos-do-sistema)
-- [Requisitos do Sistema](#-requisitos-do-sistema)
-- [Regras de Negócio](#-regras-de-negócio)
-- [Fluxos do Sistema](#-fluxos-do-sistema)
-- [Segurança](#-segurança)
-- [Contribuição](#-contribuição)
-- [Equipe de Desenvolvimento](#-equipe-de-desenvolvimento)
-- [Roadmap](#-roadmap)
-- [Licença](#-licença)
-- [Agradecimentos](#-agradecimentos)
-- [Contato](#-contato)
-
----
-
 ## 🌾 Sobre o Projeto
 
 O **SinAgro** (Sistema de Gestão Rural Modular) é uma plataforma web desenvolvida para atender as necessidades de **pequenos produtores rurais** brasileiros que ainda gerenciam suas propriedades de forma manual.
